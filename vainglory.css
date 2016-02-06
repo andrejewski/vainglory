@@ -1,5 +1,5 @@
 
-body {
+html, body {
   margin: 0px;
   background-color: #012;
 }
@@ -74,6 +74,10 @@ body {
 .bar {
   display: flex;
   border: 1px solid #0f0;
+}
+
+.bar:empty {
+  /* background-color: #0f0; */
 }
 
 .bar-row {

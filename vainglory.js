@@ -192,9 +192,9 @@ function initialize() {
     KERNAL_CODE = kText;
     CRYPTIC_CODE = cText;
     textareas.source = Textarea($('#source-code')[0], KERNAL_CODE);
-    range(0, 50).map(function(x) {
-      textareas.source.write(3);
-    });
+    // range(0, 50).map(function(x) {
+    //   textareas.source.write(3);
+    // });
   });
   });
 }
@@ -319,6 +319,12 @@ window.onkeypress = function control(e) {
 
     if(e.keyCode === 76) { // L
       tensorLoader();
+    }
+    
+    if(e.keyCode === 70) { // F
+      if(screenfull.enabled) {
+        screenfull.request();
+      }
     }
   } else {
     // write code
