@@ -1,0 +1,28 @@
+{
+  "name": "vainglory",
+  "version": "0.0.1",
+  "description": "an interface that makes it look like you're hardcore programming",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andrejewski/vainglory.git"
+  },
+  "keywords": [
+    "hardcode",
+    "programming",
+    "interface",
+    "deception"
+  ],
+  "author": "Chris Andrejewski <christopher.andrejewski@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/andrejewski/vainglory/issues"
+  },
+  "homepage": "https://github.com/andrejewski/vainglory#readme",
+  "dependencies": {
+    "screenfull": "^3.0.0"
+  }
+}
