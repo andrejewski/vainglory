@@ -4,6 +4,8 @@ body {
   background-color: #012;
 }
 
+* {box-sizing: border-box;}
+
 .hidden {
   display: none !important;
 }
@@ -38,13 +40,52 @@ body {
   font-size: 12px;
 }
 
+#programs {
+  position: fixed;
+  bottom: 0px;
+  right: 0px;
+
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+}
+
 #tournament-graph {
   border: 1px solid #0f0;
   /* background-color: #012; */
   box-shadow: 0 0 0 3px #000;
-
-  position: fixed;
-  bottom: 10px;
-  right: 10px;
+  margin: 5px;
 }
+
+#tensor-loader {
+  width: 400px;
+  height: 400px;
+
+  border: 1px solid #0f0;
+  /* background-color: #012; */
+  box-shadow: 0 0 0 3px #000;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  margin: 5px;
+}
+
+.bar {
+  display: flex;
+  border: 1px solid #0f0;
+}
+
+.bar-row {
+  flex-direction: row;
+  height: 10%;
+}
+
+.bar-col {
+  flex-direction: column-reverse;
+  width: 10%;
+  height: 100%;
+  align-self: flex-end;
+}
+
 
