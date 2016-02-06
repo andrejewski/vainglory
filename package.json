@@ -4,7 +4,7 @@
   "description": "an interface that makes it look like you're hardcore programming",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "deps": "cp node_modules/screenfull/dist/screenfull.js deps"
   },
   "repository": {
     "type": "git",
