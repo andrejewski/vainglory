@@ -27,11 +27,11 @@ function choose(n, k){
 };
 
 function range(to, from, step) {
-  var list = [to];
+  var list = [];
   step = step || 1;
   while(to != from) {
-    to += step;
     list.push(to);
+    to += step;
   }
   return list;
 }
@@ -231,6 +231,79 @@ function popUpScript() {
   }, 2000);
 }
 
+var _tl = null;
+function tensorLoader() {
+  var $tl = $('#tensor-loader')[0];
+  $tl.classList.toggle('hidden');
+  _tl = !$tl.classList.contains('hidden')
+    ? setInterval(renderTensorLoader(), 20)
+    : clearInterval(_tl);
+}
+
+function renderTensorLoader() {
+  var barCount = 10;
+  var barDepth = 3;
+
+  var t = 0;
+  var tMax = Math.pow(barCount, barDepth);
+
+  function loader(t, max, depth) {
+    if(max < 10) return "";
+    return range(0, Math.ceil(t / (max / 10)))
+      .map(function(x, i) {
+        var rest = t % ((i+1) * (max/10));
+        var bars = rest 
+          ? loader(rest, (max/10), depth + 1)
+          : "";
+        var barClass = depth % 2
+          ? "bar-col"
+          : "bar-row";
+        return "<div class='bar "+barClass+"'>"+bars+"</div>";
+      }).join('');
+  }
+
+  // function l(t, tMax, depth) {
+  //   return range(0, Math.floor(t / tMax / 10))
+  //     .map(function (x) {
+  //       return range(0, 10).map(function() );
+
+  //     });
+  // }
+
+  function tensor(t, tMax) {
+    if(tMax < 10) return t;
+    var fullBarCount = Math.floor(t / (tMax / barCount));
+    var remainder = t - (fullBarCount * (tMax / barCount));
+    var table = range(0, fullBarCount).map(function(x) {
+      return tensor(tMax/10, tMax/10);
+    });
+    if(remainder) {
+      table.push(tensor(remainder, tMax/10));
+    }
+    return table;
+  }
+
+  function htmlTensor(tensor, depth) {
+    depth = depth || 0;
+    var bars = (Array.isArray(tensor) ? tensor : []) 
+      .map(function(t) {
+        return htmlTensor(t, depth + 1);
+      }).join('');
+    if(!depth) return bars;
+    var barClass = depth % 2
+      ? 'bar-col'
+      : 'bar-row';
+    return "<div class='bar "+barClass+"'>"+bars+"</div>";
+  }
+  
+
+  var $tl = $('#tensor-loader')[0];
+  return function _renderTensorLoader() {
+    t %= tMax;
+    $tl.innerHTML = htmlTensor(tensor(t++, tMax), 0);
+  }
+}
+
 // tournamentGraph();
 window.onkeypress = function control(e) {
   if(e.shiftKey) {
@@ -242,6 +315,10 @@ window.onkeypress = function control(e) {
 
     if(e.keyCode === 80) { // P
       popUpScript();
+    }
+
+    if(e.keyCode === 76) { // L
+      tensorLoader();
     }
   } else {
     // write code
