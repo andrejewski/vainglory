@@ -167,14 +167,28 @@ function renderTournamentGraph() {
 }
 
 function Textarea(el, text) {
+  var cursor = '|';
   var c = 0;
   function write(chuck) {
     c += chuck;
-    el.innerHTML = text.slice(0, c).split('\n').join('<br/>');
+    var code = text.slice(0, c).split('\n').join('<br/>');
+    if(b) code += cursor;
+    el.innerHTML = code;
     el.scrollTop = el.scrollHeight;
   }
 
-  return {write: write};
+  var b = false;
+  function blink() {
+    if(el.innerHTML.slice(-1) === cursor) {
+      b = false;
+      el.innerHTML = el.innerHTML.slice(0, -1);
+    } else {
+      b = true;
+      el.innerHTML += cursor;
+    }
+  }
+
+  return {write: write, blink: blink};
 }
 
 var textareas = {};
@@ -195,6 +209,7 @@ function initialize() {
     // range(0, 50).map(function(x) {
     //   textareas.source.write(3);
     // });
+    setInterval(textareas.source.blink, 500);
   });
   });
 }
@@ -304,6 +319,117 @@ function renderTensorLoader() {
   }
 }
 
+var _sb = null;
+function soundBarGraph() {
+  var $sb = $('#sound-bar-graph')[0];
+  $sb.classList.toggle('hidden');
+  _sb = !$sb.classList.contains('hidden')
+    ? setInterval(renderSoundBarGraph(), 40)
+    : clearInterval(_sb);
+}
+
+function renderSoundBarGraph() {
+  var barCount = 80;
+  var barHeight = 40;
+
+  var barMax = 10;
+
+  var bars = range(0,barCount)
+    .map(function() {return 0;});
+
+  function updateBars(bars) {
+    return bars.map(function(x) {
+      if(x === 0) return 1;
+      if(x === barMax) return barMax - 9;
+      return x + Math.round(Math.random());
+    });
+  }
+
+  function renderBars(bars) {
+    return bars
+      .map(function(bar) {
+        var x = bar * barHeight;
+        return "<div class='sound-bar' style='height:"+x+"px'></div>";
+      })
+      .join('');
+  }
+
+  var $sb = $('#sound-bar-graph')[0];
+  return function _renderSoundBarGraph() {
+    $sb.innerHTML = renderBars(bars = updateBars(bars));  
+  }
+}
+
+var _sl = null;
+function screenLock() {
+  var $sl = $('#screen-lock')[0];
+  $sl.classList.toggle('hidden');
+  _sl = !$sl.classList.contains('hidden')
+    ? setInterval(renderScreenLock(), 80)
+    : clearInterval(_sl);
+}
+
+function renderScreenLock() {
+  var sizeCount = 40;
+  var charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+  function randChar() {
+    return charset[Math.floor(Math.random() * charset.length)];
+  }
+
+  var lock = range(0, sizeCount)
+    .map(function(x) {return range(0, sizeCount)
+      .map(function(y) {return randChar();});});
+
+  var lockMask = range(0, sizeCount)
+    .map(function(x) {return range(0, sizeCount)
+      .map(function(y) {return 0;})});
+
+  function maskLine(x, y, size, vertical) {
+    if(vertical) {
+      for(var i = 0; i < size; i++) {
+        lockMask[y+i][x] = 1;
+      }
+    } else {
+      for(var i = 0; i < size; i++) {
+        lockMask[y][x+i] = 1;
+      }
+    } 
+  }
+
+  [
+    // [2,2,8,true],
+    [12,15,14,false],
+    [12,15,12,true],
+    [26,15,12,true],
+    [12,26,14,false],
+    [12,24,12,false],
+    [12,22,12,false],
+    [12,20,14,false],
+  ].forEach(function(line) { maskLine.apply(null, line); });
+
+  function updateLock(lock) {
+    var lockChar = "&nbsp;";
+    for(var i = 0; i < lock.length; i++) {
+      for(var j = 0; j < lock[0].length; j++) {
+        lock[i][j] = lockMask[i][j] ? lockChar : randChar();
+      }
+    }
+    return lock;
+  }
+
+  function renderLock(lock) {
+    return lock.map(function(row) {
+      return row.join('');
+    }).join('<br/>');
+  }
+
+  var $sl = $('#screen-lock')[0];
+  return function _renderScreenLock() {
+    $sl.innerHTML = renderLock(lock = updateLock(lock));
+  }
+}
+
+
 // tournamentGraph();
 window.onkeypress = function control(e) {
   if(e.shiftKey) {
@@ -326,6 +452,15 @@ window.onkeypress = function control(e) {
         screenfull.request();
       }
     }
+
+    if(e.keyCode === 83) { // S
+      soundBarGraph();
+    }
+
+    if(e.keyCode === 32) { // [space]
+      screenLock();
+    }
+
   } else {
     // write code
     getTextarea().write(3);
