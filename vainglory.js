@@ -246,6 +246,48 @@ function popUpScript() {
   }, 2000);
 }
 
+function popUpLoader() {
+  var $script = document.createElement('div');
+  $script.className = "pop-up-loader";
+  $("#pop-up-scripts").append($script);
+
+  var $loader = document.createElement('div');
+  $script.appendChild($loader);
+
+  var size = 300;
+  var innerSize = size - 12;
+
+  $script.style.width  = size + "px";
+  $script.style.height = 50 + "px";
+
+  var x = Math.floor(Math.random() * $(window).width()) + 20;
+  var y = Math.floor(Math.random() * $(window).height())+ 20;
+
+  if(x + size > $(window).width()) x = Math.max(20, x - size);
+  if(y + size > $(window).height()) y = Math.max(20, y - size);
+
+  $script.style.left = x + "px";
+  $script.style.top  = y + "px";
+
+  var lifeSpan = Math.floor(Math.random() * 3500) + 500;
+  var tickSpan = lifeSpan/100;
+  var finishDelay = 200;
+
+  var t = 0;
+  var i = setInterval(function() {
+    var percent = ((t++ * tickSpan) / lifeSpan);
+    if(percent > 1) return;
+    $loader.style.width = (innerSize*percent) + 'px';
+  }, tickSpan);
+
+  $script.style.zIndex = i;
+
+  setTimeout(function() {
+    clearInterval(i);
+    $($script).remove();
+  }, lifeSpan + finishDelay);
+}
+
 var _tl = null;
 function tensorLoader() {
   var $tl = $('#tensor-loader')[0];
@@ -314,7 +356,7 @@ function renderTensorLoader() {
 
   var $tl = $('#tensor-loader')[0];
   return function _renderTensorLoader() {
-    t %= tMax;
+    if(t > tMax) return;
     $tl.innerHTML = htmlTensor(tensor(t++, tMax), 0);
   }
 }
@@ -429,6 +471,61 @@ function renderScreenLock() {
   }
 }
 
+var _sf = null;
+function serverFarm() {
+  var $sf = $('#server-farm')[0];
+  $sf.classList.toggle('hidden');
+  _sf = !$sf.classList.contains('hidden')
+    ? setInterval(renderServerFarm(), 1000)
+    : clearInterval(_sf);
+}
+
+function renderServerFarm() {
+  var farmSize = 20;
+  var farm = range(0, farmSize)
+    .map(function(x) {
+      return {
+        name: 's'+(x+1),
+        major: 1,
+        minor: 0,
+        patch: 0,
+      };
+    });
+
+  function updateFarm(farm) {
+    return farm.map(function(s) {
+      s.failing = (Math.random() * 100) < 5;
+      if(s.failing) s.patch++;
+      if(s.patch > 9) {
+        s.minor++;
+        s.patch = 0;
+      }
+      if(s.minor > 9) {
+        s.major++;
+        s.minor = 0;
+      }
+      return s;
+    });
+  }
+
+  function renderFarm(farm) {
+    return farm.map(function(s) {
+      var serverClass = 'server';
+      if(s.failing) serverClass += ' server-failing';
+      return [
+        "<div class='"+serverClass+"'>",
+          "<h4>"+s.name+"</h4>",
+          "<span>v"+s.major+"."+s.minor+"."+s.patch+"</span>",
+        "</div>"
+      ].join('');
+    }).join('');
+  }
+
+  var $sf = $('#server-farm')[0];
+  return function _renderServerFarm() {
+    $sf.innerHTML = renderFarm(farm = updateFarm(farm));
+  }
+}
 
 // tournamentGraph();
 window.onkeypress = function control(e) {
@@ -444,7 +541,8 @@ window.onkeypress = function control(e) {
     }
 
     if(e.keyCode === 76) { // L
-      tensorLoader();
+      // tensorLoader();
+      popUpLoader();
     }
     
     if(e.keyCode === 70) { // F
@@ -459,6 +557,10 @@ window.onkeypress = function control(e) {
 
     if(e.keyCode === 32) { // [space]
       screenLock();
+    }
+
+    if(e.keyCode === 77) { // M
+      serverFarm();
     }
 
   } else {

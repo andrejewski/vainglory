@@ -40,6 +40,27 @@ html, body {
   font-size: 12px;
 }
 
+.pop-up-loader {
+  border: 1px solid #0f0;
+  background-color: #012;
+  box-shadow: 0 0 0 3px #000;
+
+  padding: 5px;
+  display: block;
+  position: fixed;
+  overflow: auto;
+
+  color: #0f0;
+  font-family: monospace;
+  font-size: 12px;
+}
+
+.pop-up-loader div {
+  display: inline-block;
+  height: 100%;
+  background-color: #0f0;
+}
+
 #programs {
   position: fixed;
   bottom: 0px;
@@ -128,6 +149,41 @@ html, body {
   z-index: 1000;
 
   background-color: #012;
+}
+
+#server-farm {
+  position: fixed;
+  top: 0px;
+  right: 0px;
+  
+  display: flex;
+  flex-wrap: wrap;
+  padding: 5px;
+  width: 310px;
+}
+
+.server {
+  border: 1px solid #0f0;
+  box-shadow: 0 0 0 3px #000;
+  display: flex;
+  padding: 10px;
+  margin: 5px;
+  width: 50px;
+  height: 50px;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  color: #0f0;
+}
+
+.server-failing {
+  border-color: #f00;
+  color: #f00;
+}
+
+.server h4, span {
+  font-family: monospace;
+  margin: 0px;
 }
 
 
