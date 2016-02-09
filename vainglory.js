@@ -78,7 +78,7 @@ function renderTournamentGraph() {
 
   var mag = (Math.min(size.width, size.height)/2) - 10;
   var vCount = 12;
-  var nodes = range(0, vCount - 1).map(function(x) {
+  var nodes = range(0, vCount).map(function(x) {
     var theta = x * ((2 * Math.PI)/vCount);
     var vector = [
       (size.width/2) + (mag * Math.cos(theta)),
@@ -96,7 +96,7 @@ function renderTournamentGraph() {
     return "rgb("+_color.join(',')+")";
   }
 
-  var edges = combinations(range(0, vCount - 1), 2)
+  var edges = combinations(range(0, vCount), 2)
     .map(function(combo) {
       return [nodes[combo[0]], nodes[combo[1]]];
     });
