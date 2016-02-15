@@ -527,6 +527,48 @@ function renderServerFarm() {
   }
 }
 
+var _pb = null;
+function passwordBreaker() {
+  var $pb = $('#password-breaker')[0];
+  $pb.classList.toggle('hidden');
+  _pb = !$pb.classList.contains('hidden')
+    ? setInterval(renderPasswordBreaker(), 50)
+    : clearInterval(_pb);
+}
+
+function renderPasswordBreaker() {
+  var t = 1;
+  var tMax = 50;
+  var passwordSize = 10;
+
+  var charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+  function randChar() {
+    return charset[Math.floor(Math.random() * charset.length)];
+  }
+
+  var list = [range(0, passwordSize).map(randChar).join('')];
+  function combos(list, prepend) {
+    list[0] = range(0, passwordSize).map(randChar).join('');
+    if(!prepend) return list;
+    return [list[0], list[0]].concat(list.slice(1)).slice(0, passwordSize);
+  }
+
+  function renderList(list) {
+    return list.map(function(code) {
+      return '<div>'+code
+        .split('')
+        .map(function(x) {return '<i>'+x+'</i>'})
+        .join('')+'</div>';
+    }).join('');
+  }
+
+  var $pb = $('#password-breaker')[0];
+  return function _renderPasswordBreaker() {
+    t %= tMax;
+    $pb.innerHTML = renderList(list = combos(list, !t++));
+  }
+}
+
 // tournamentGraph();
 window.onkeypress = function control(e) {
   if(e.shiftKey) {
@@ -561,6 +603,10 @@ window.onkeypress = function control(e) {
 
     if(e.keyCode === 77) { // M
       serverFarm();
+    }
+
+    if(e.keyCode === 66) { // B
+      passwordBreaker();
     }
 
   } else {
