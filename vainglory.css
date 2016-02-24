@@ -10,19 +10,30 @@ html, body {
   display: none !important;
 }
 
-#source-code {
-  color: #0f0;
-  font-family: monospace;
-  font-size: 12px;
-  padding: 5px;
-
+#editor {
   position: fixed;
   top: 0;
   bottom: 0;
   left: 0;
   right: 0;
+  font-size: 0px;
+}
+
+#editor .frame {
+  display: inline-block;
+  color: #0f0;
+  font-family: monospace;
+  font-size: 12px;
+  padding: 10px;
+  margin: 0px;
+  box-shadow: 0 0 0 1px #040;
 
   overflow: auto;
+  flex: 1;
+}
+
+#editor .frame.focused {
+  box-shadow: 0 0 0 1px #0a0;
 }
 
 .pop-up-script {
