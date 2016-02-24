@@ -1,11 +1,4 @@
 
-(function() {
-
-// function $(selector, context) {
-//   context = context || document;
-//   return Array.prototype.slice.call(context.querySelectorAll(selector), 0);
-// }
-
 function factorial(n){
 	if(n < 0) return undefined;
 	if(n == 0) return 1;
@@ -191,31 +184,8 @@ function Textarea(el, text) {
   return {write: write, blink: blink};
 }
 
-var textareas = {};
-var _textarea = "source";
-function getTextarea() {
-  return textareas[_textarea];
-}
-
-var KERNAL_CODE = null;
-var CRYPTIC_CODE = null;
-
-function initialize() {
-  $.get("text/kernal-code.cpp", function(kText) {
-  $.get("text/cryptic-code.txt", function(cText) {
-    KERNAL_CODE = kText;
-    CRYPTIC_CODE = cText;
-    textareas.source = Textarea($('#source-code')[0], KERNAL_CODE);
-    // range(0, 50).map(function(x) {
-    //   textareas.source.write(3);
-    // });
-    setInterval(textareas.source.blink, 500);
-  });
-  });
-}
-initialize();
-
 function popUpScript() {
+  if(!source.loaded()) return;
   var $script = document.createElement('pre');
   $script.className = "pop-up-script";
   $("#pop-up-scripts").append($script);
@@ -234,9 +204,12 @@ function popUpScript() {
   $script.style.left = x + "px";
   $script.style.top  = y + "px";
 
+  var index = Math.floor(Math.random() * source.files.length);
+  var file = source.files[index];
+
   var textbox;
   var i = setInterval(function() { textbox.write(3); }, 5);
-  textbox = Textarea($script, CRYPTIC_CODE.slice(50*(i%10)));
+  textbox = Textarea($script, file.slice(50*(i%10)));
 
   $script.style.zIndex = i;
 
@@ -569,51 +542,157 @@ function renderPasswordBreaker() {
   }
 }
 
+var source = (function() {
+  var filenames = [
+    "text/kernal-code.cpp",
+    "text/vim-makefile.txt",
+    "text/vsprintf.c",
+    "text/brain-fuck.txt",
+  ];
+
+  var files = [,,,];
+
+  var loaded = false;
+  var getCount = 0;
+
+  filenames.forEach(function(filename, index) {
+    $.get(filename, function(text) {
+      files[index] = text;
+      loaded = ++getCount === filenames.length;
+    });
+  });
+
+  return {
+    loaded: function() {return loaded;},
+    files: files,
+  };
+})();
+
+var editor = (function() {
+  var isVSplit = false;
+  var isHSplit = false;
+
+  var sizes = [0,0,0,0];
+  var focused = 0;
+  var loaded = false;
+  var blinking = false;
+  var cursor = '|';
+
+  var $editor = $('#editor');
+
+  function setClass($el, className, bool) {
+    if(bool) {
+      $el.addClass(className);
+    } else {
+      $el.removeClass(className);
+    }
+  }
+
+  function drawEditor(untriggered) {
+    if(!source.loaded()) return;
+    setClass($('.frame'), 'focused', false);
+    setClass($('.vsplit'), 'hidden', !isVSplit);
+    setClass($('.hsplit'), 'hidden', !isHSplit);
+    var focus = $('.frame')[focused];
+
+    var width = $editor.innerWidth() / (isVSplit + 1); 
+    var height = $editor.innerHeight() / (isHSplit + 1); 
+    $('.frame:not(.hidden)').css({
+      width: width,
+      height: height,
+    });
+
+    focus.classList.add('focused');
+    $('.frame').each(function(index, elem) {
+      $(elem).text(source.files[index].slice(0, sizes[index]));
+    });
+
+    if(!untriggered) return;
+    if(blinking = !blinking) focus.innerHTML += cursor;
+  }
+
+  setInterval(drawEditor.bind(null, true), 500);
+  $editor.on('click', '.frame', function(e) {
+    focused = $('.frame', $editor).index(this);
+    drawEditor();
+  });
+
+  function vsplit() {
+    isVSplit = !isVSplit;
+    if(!isVSplit && focused % 2 !== 0) focused--; 
+  }
+
+  function hsplit() {
+    isHSplit = !isHSplit;
+    if(!isHSplit && focused > 1) focused -= 2; 
+  }
+
+  function focus(i) {
+    i = Math.min(Math.max(0, i), sizes.length);
+    if(!isHSplit && !isVSplit) {
+      i = 0;
+    } else if(!isHSplit) {
+      if(i === 2) i = 0;
+      if(i === 3) i = 1;
+    } else if(!isVSplit) {
+      if(i === 1) i = 0;
+      if(i === 3) i = 2;
+    }
+    focused = i;
+    drawEditor();
+  }
+
+  function write(n) {
+    sizes[focused] += n;
+    drawEditor();
+    var el = $('.frame.focused')[0];
+    if(el) el.scrollTop = el.scrollHeight;
+  }
+
+  function erase(n) {
+    sizes[focused] -= n;
+    sizes[focused] = Math.max(0, sizes[focused]);
+    drawEditor();
+  }
+
+  return {
+    vsplit: vsplit,
+    hsplit: hsplit,
+    focus: focus,
+    write: write,
+    erase: erase,
+  };
+})();
+
 // tournamentGraph();
-window.onkeypress = function control(e) {
+window.onkeydown = function control(e) {
   if(e.shiftKey) {
-    console.log(e.keyCode);
-    // run effect
-    if(e.keyCode === 84) { // T
-      tournamentGraph();
-    }
+    // console.log(e.keyCode);
 
-    if(e.keyCode === 80) { // P
-      popUpScript();
-    }
+    if(e.keyCode === 32) screenLock(); // [space]
+    if(e.keyCode === 66) passwordBreaker(); // B
+    if(e.keyCode === 70) screenfull.enabled && screenfull.toggle(); // F
+    if(e.keyCode === 76) popUpLoader(); // L
+    if(e.keyCode === 77) serverFarm(); // M
+    if(e.keyCode === 80) popUpScript(); // P
+    if(e.keyCode === 83) soundBarGraph(); // S
+    if(e.keyCode === 84) tournamentGraph(); // T
 
-    if(e.keyCode === 76) { // L
-      // tensorLoader();
-      popUpLoader();
-    }
-    
-    if(e.keyCode === 70) { // F
-      if(screenfull.enabled) {
-        screenfull.request();
-      }
-    }
+    if(e.keyCode === 72) editor.hsplit(); // H
+    if(e.keyCode === 86) editor.vsplit(); // V
 
-    if(e.keyCode === 83) { // S
-      soundBarGraph();
-    }
-
-    if(e.keyCode === 32) { // [space]
-      screenLock();
-    }
-
-    if(e.keyCode === 77) { // M
-      serverFarm();
-    }
-
-    if(e.keyCode === 66) { // B
-      passwordBreaker();
-    }
+    if(e.keyCode === 49) editor.focus(0); // 1
+    if(e.keyCode === 50) editor.focus(1); // 2
+    if(e.keyCode === 51) editor.focus(2); // 3
+    if(e.keyCode === 52) editor.focus(3); // 4
 
   } else {
-    // write code
-    getTextarea().write(3);
+    if(e.keyCode === 8) { // [Backspace]
+      e.preventDefault();
+      editor.erase(1);
+    } else {
+      editor.write(3);
+    }
   }
 }
-
-}).call(this);
 
