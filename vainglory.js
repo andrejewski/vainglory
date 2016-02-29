@@ -448,8 +448,10 @@ var _sf = null;
 function serverFarm() {
   var $sf = $('#server-farm')[0];
   $sf.classList.toggle('hidden');
+  var rsf = renderServerFarm();
+  rsf();
   _sf = !$sf.classList.contains('hidden')
-    ? setInterval(renderServerFarm(), 1000)
+    ? setInterval(rsf, 1000)
     : clearInterval(_sf);
 }
 
@@ -511,8 +513,9 @@ function passwordBreaker() {
 
 function renderPasswordBreaker() {
   var t = 1;
-  var tMax = 50;
-  var passwordSize = 10;
+  var tMax = 20;
+  var passwordSize = 12;
+  var passwordCount = 20;
 
   var charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
   function randChar() {
@@ -523,7 +526,7 @@ function renderPasswordBreaker() {
   function combos(list, prepend) {
     list[0] = range(0, passwordSize).map(randChar).join('');
     if(!prepend) return list;
-    return [list[0], list[0]].concat(list.slice(1)).slice(0, passwordSize);
+    return [list[0], list[0]].concat(list.slice(1)).slice(0, passwordCount);
   }
 
   function renderList(list) {
