@@ -667,6 +667,133 @@ var editor = (function() {
   };
 })();
 
+function random(max) {
+  return Math.floor(Math.random()*max);
+}
+
+var _gt = null;
+function graphTranslate() {
+  var $gt = $('#graph-translate');
+  var canvas = $gt.find('canvas')[0];
+  var ctx = canvas.getContext('2d');
+
+  function render() {
+    var nodeCount = 40;
+    var idSpacing = 15;
+    var maxEdgeLength = 200;
+
+    var nodes = range(0, nodeCount)
+      .map(function(x) {
+        return {
+          id: x,
+          x: plane().width / 2,
+          y: plane().height / 2,
+          vx: randomVelocity(),
+          vy: randomVelocity(),
+          idX: idSpacing,
+          idY: 0,
+        };
+      });
+    var edges = [];
+
+    function plane() {
+      return {
+        width: $gt.innerWidth(),
+        height: $gt.innerHeight(),
+      };
+    }
+
+    function randomVelocity() {
+      var maxSpeed = 10;
+      var v = (Math.random() * (2 * 10)) - maxSpeed;
+      if(!v) return randomVelocity();
+      return v;
+    }
+
+    function mutateNodes(nodes) {
+      var bounds = plane();
+      return nodes.map(function(node) {
+        node.x += node.vx;
+        node.y += node.vy;
+        if(node.x < 0 || node.x > bounds.width) {
+          node.x = node.x > bounds.width ? 0 : bounds.width;
+          node.y = bounds.height - node.y + random(20);
+          node.vx = randomVelocity();
+        }
+        if(node.y < 0 || node.y > bounds.height) {
+          node.y = node.y > bounds.height ? 0 : bounds.height;
+          node.x = bounds.width - node.x + random(20);
+          node.vy = randomVelocity();
+        }
+        node.idX = (node.x > (bounds.width - node.x)) ? -idSpacing : idSpacing;
+        node.idY = (node.y > (bounds.height - node.y)) ? -idSpacing : idSpacing;
+        return node;
+      });
+    }
+
+    function distance(a,b) {
+      return Math.sqrt(Math.pow(a.x-b.x, 2) + Math.pow(a.y-b.y, 2));
+    }
+
+    function createEdges(nodes) {
+      return combinations(nodes, 2)
+        .filter(function(pair) {
+          return distance(pair[0], pair[1]) < maxEdgeLength;
+        })
+        .map(function(pair) {
+          return {
+            x1: pair[0].x,
+            y1: pair[0].y,
+            x2: pair[1].x,
+            y2: pair[1].y,
+          };
+        });
+    }
+
+    function drawGraph(ctx, nodes, edges) {
+      var bounds = plane();
+      var nodeRadius = 5;
+      ctx.clearRect(0, 0, bounds.width, bounds.height);
+      ctx.strokeStyle = '#080';
+      ctx.fillStyle = '#080';
+      nodes.forEach(function(node) {
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, nodeRadius, 0, 2 * Math.PI);
+        ctx.fillText(node.id, node.idX + node.x, node.idY + node.y);
+        ctx.stroke();
+      });
+      ctx.strokeStyle = '#060';
+      edges.forEach(function(edge) {
+        ctx.beginPath();
+        ctx.moveTo(edge.x1, edge.y1);
+        ctx.lineTo(edge.x2, edge.y2);
+        ctx.stroke();
+      });
+    }
+
+    function showGraph() {
+      var bounds = plane();
+      canvas.width = bounds.width;
+      canvas.height = bounds.height;
+    }
+  
+    return function _render() {
+      nodes = mutateNodes(nodes);
+      edges = createEdges(nodes);
+      showGraph();
+      drawGraph(ctx, nodes, edges);
+      return true;
+    }
+  }
+
+  $gt[0].classList.toggle('hidden');
+  var renderFn = render();
+
+  _gt = !$gt[0].classList.contains('hidden')
+    ? renderFn() && setInterval(renderFn, 50)
+    : clearInterval(_gt);
+}
+
 // tournamentGraph();
 window.onkeydown = function control(e) {
   if(e.shiftKey) {
@@ -680,6 +807,7 @@ window.onkeydown = function control(e) {
     if(e.keyCode === 80) popUpScript(); // P
     if(e.keyCode === 83) soundBarGraph(); // S
     if(e.keyCode === 84) tournamentGraph(); // T
+    if(e.keyCode === 71) graphTranslate(); // G
 
     if(e.keyCode === 72) editor.hsplit(); // H
     if(e.keyCode === 86) editor.vsplit(); // V
