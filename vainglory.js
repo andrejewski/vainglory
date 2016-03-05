@@ -571,6 +571,14 @@ var source = (function() {
   };
 })();
 
+function setClass($el, className, bool) {
+  if(bool) {
+    $el.addClass(className);
+  } else {
+    $el.removeClass(className);
+  }
+}
+
 var editor = (function() {
   var isVSplit = false;
   var isHSplit = false;
@@ -582,14 +590,6 @@ var editor = (function() {
   var cursor = '|';
 
   var $editor = $('#editor');
-
-  function setClass($el, className, bool) {
-    if(bool) {
-      $el.addClass(className);
-    } else {
-      $el.removeClass(className);
-    }
-  }
 
   function drawEditor(untriggered) {
     if(!source.loaded()) return;
@@ -631,6 +631,7 @@ var editor = (function() {
   }
 
   function focus(i) {
+    if(typeof i !== 'number') return focused;
     i = Math.min(Math.max(0, i), sizes.length);
     if(!isHSplit && !isVSplit) {
       i = 0;
@@ -664,6 +665,78 @@ var editor = (function() {
     focus: focus,
     write: write,
     erase: erase,
+  };
+})();
+
+var player = (function() {
+  var isRecording = false;
+  var loop = null;
+  var REPLAY_SPEED = 50;
+  var stopLoop = false;
+
+  var commands = [];
+
+  function record(code, shift) {
+    if(isRecording) commands.push([code, shift]);
+  }
+
+  function toggleRecord() {
+    commands = commands.slice(0, -1);
+    updateRecord(!isRecording);
+  }
+
+  function updateRecord(bool) {
+    isRecording = bool;
+    if(isRecording) commands = [];
+    setClass($('#recording-indicator'), 'hidden', !isRecording);
+  }
+
+  function replay() {
+    var i = 0;
+    var t = setInterval(function() {
+      var command = commands[i++];
+      control(command[0], command[1]);
+      if(stopLoop) return clearInterval(t);
+      if(i >= commands.length) clearInterval(t);
+    }, REPLAY_SPEED);
+    return t;
+  }
+
+  function replayOnce() {
+    if(isRecording) {
+      commands = commands.slice(0, -1);
+      updateRecord(false);
+    }
+    if(loop) clearInterval(loop);
+    replay();
+  }
+
+  function replayLoop() {
+    if(isRecording) {
+      commands = commands.slice(0, -1);
+      updateRecord(false);
+    }
+    if(!commands.length) return;
+    if(loop) {
+      clearInterval(loop);
+      loop = null;
+      stopLoop = true;
+    } else {
+      stopLoop = false;
+      var focused = editor.focus();
+      replay();
+      loop = setInterval(function() {
+        editor.focus(focused);
+        replay();
+      }, REPLAY_SPEED * commands.length); 
+    }
+  }
+
+  return {
+    record: record,
+    toggleRecord: toggleRecord,
+    replayLoop: replayLoop,
+    replayOnce: replayOnce,
   };
 })();
 
@@ -794,36 +867,44 @@ function graphTranslate() {
     : clearInterval(_gt);
 }
 
-// tournamentGraph();
-window.onkeydown = function control(e) {
-  if(e.shiftKey) {
-    // console.log(e.keyCode);
+function control(code, shift) {
+  // console.log(code);
+  player.record(code, shift);
 
-    if(e.keyCode === 32) screenLock(); // [space]
-    if(e.keyCode === 66) passwordBreaker(); // B
-    if(e.keyCode === 70) screenfull.enabled && screenfull.toggle(); // F
-    if(e.keyCode === 76) popUpLoader(); // L
-    if(e.keyCode === 77) serverFarm(); // M
-    if(e.keyCode === 80) popUpScript(); // P
-    if(e.keyCode === 83) soundBarGraph(); // S
-    if(e.keyCode === 84) tournamentGraph(); // T
-    if(e.keyCode === 71) graphTranslate(); // G
+  if(shift) {
+    if(code === 32) screenLock(); // [space]
+    if(code === 66) passwordBreaker(); // B
+    if(code === 70) screenfull.enabled && screenfull.toggle(); // F
+    if(code === 76) popUpLoader(); // L
+    if(code === 77) serverFarm(); // M
+    if(code === 80) popUpScript(); // P
+    if(code === 83) soundBarGraph(); // S
+    if(code === 84) tournamentGraph(); // T
+    if(code === 71) graphTranslate(); // G
 
-    if(e.keyCode === 72) editor.hsplit(); // H
-    if(e.keyCode === 86) editor.vsplit(); // V
+    if(code === 81) player.toggleRecord(); // Q
+    if(code === 65) player.replayLoop(); // A
+    if(code === 87) player.replayOnce(); // W
 
-    if(e.keyCode === 49) editor.focus(0); // 1
-    if(e.keyCode === 50) editor.focus(1); // 2
-    if(e.keyCode === 51) editor.focus(2); // 3
-    if(e.keyCode === 52) editor.focus(3); // 4
+    if(code === 72) editor.hsplit(); // H
+    if(code === 86) editor.vsplit(); // V
 
+    if(code === 49) editor.focus(0); // 1
+    if(code === 50) editor.focus(1); // 2
+    if(code === 51) editor.focus(2); // 3
+    if(code === 52) editor.focus(3); // 4
   } else {
-    if(e.keyCode === 8) { // [Backspace]
-      e.preventDefault();
+    if(code === 8) { // [Backspace]
       editor.erase(1);
+      return true;
     } else {
       editor.write(3);
     }
   }
+}
+
+// tournamentGraph();
+window.onkeydown = function _control(e) {
+  if(control(e.keyCode, e.shiftKey)) e.preventDefault();
 }
 
