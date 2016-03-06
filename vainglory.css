@@ -164,7 +164,7 @@ html, body {
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 1000;
+  z-index: 9999;
 
   background-color: #012;
 }
@@ -245,5 +245,61 @@ html, body {
   font-size: 1em;
   font-family: monospace;
   color: #0f0;
+}
+
+#help {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9998;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#help h1, #help h3, #help p, #help li {
+  font-family: monospace;
+  font-size: 1em;
+  color: #0f0;
+  margin: 0px;
+}
+
+#help a {
+  color: inherit;
+}
+
+#help ul {
+  list-style-type: none;
+  padding: 0px;
+  margin: 5px 0px;
+}
+
+#help kbd {
+  display: inline-block;
+  border: 1px solid #0f0;
+  padding: 3px 5px;
+  margin: 3px;
+}
+
+.help-menu {
+  border: 1px solid #0f0;
+  background-color: #012;
+  box-shadow: 0 0 0 3px #000;
+  margin: 20px;
+  padding: 10px;
+}
+
+.help-header {
+  padding: 10px;
+}
+
+.help-section {
+  display: inline-block;
+  vertical-align: top;
+  padding: 10px;
+  margin: 0px auto;
 }
 
