@@ -590,8 +590,6 @@ var editor = (function() {
   var cursor = '|';
 
   var $editor = $('#editor');
-  $('.frame:first-child', $editor).removeClass('hidden');
-  drawEditor(true);
 
   function drawEditor(untriggered) {
     if(!source.loaded()) return;
