@@ -6,7 +6,7 @@
 </head>
 <body>
   <div id='editor'>
-    <pre class='frame'></pre>
+    <pre class='frame hidden'></pre>
     <pre class='frame hidden vsplit'></pre>
     <pre class='frame hidden hsplit'></pre>
     <pre class='frame hidden vsplit hsplit'></pre>
@@ -35,6 +35,114 @@
 
   <div id='recording-indicator' class='hidden'>Recording</div>
   <div id='screen-lock' class='hidden'></div>
+
+  <div id='help' class='hidden'>
+    <div class='help-menu'>
+      <div class='help-header'>
+        <h1>Vainglory</h1>
+        <p>
+          Created by <a href='http://chrisandrejewski.com/'>Chris Andrejewski</a>
+          and published on <a href='https://github.com/andrejewski/vainglory'>Github</a>.
+        </p>
+      </div>
+      <div class='help-section'>
+        <h3>Editor</h3>
+        <ul>
+          <li>
+            <kbd>H</kbd>
+            <span>Toggle horizontal split</span>
+          </li>
+          <li>
+            <kbd>V</kbd>
+            <span>Toggle vertical split</span>
+          </li>
+          <li>
+            <kbd>1</kbd>
+            <span>Focus top-left</span>
+          </li>
+          <li>
+            <kbd>2</kbd>
+            <span>Focus top-right</span>
+          </li>
+          <li>
+            <kbd>3</kbd>
+            <span>Focus bottom-left</span>
+          </li>
+          <li>
+            <kbd>4</kbd>
+            <span>Focus bottom-right</span>
+          </li>
+        </ul>
+      </div>
+      <div class='help-section'>
+        <h3>Player</h3>
+        <ul>
+          <li>
+            <kbd>Q</kbd>
+            <span>Record sequence</span>
+          </li>
+          <li>
+            <kbd>W</kbd>
+            <span>Play sequence</span>
+          </li>
+          <li>
+            <kbd>A</kbd>
+            <span>Loop sequence</span>
+          </li>
+        </ul>
+      </div>
+      <div class='help-section'>
+        <h3>Effects</h3>
+        <ul>
+          <li>
+            <kbd>T</kbd>
+            <span>Tournament graph</span>
+          </li>
+          <li>
+            <kbd>M</kbd>
+            <span>Server farm</span>
+          </li>
+          <li>
+            <kbd>B</kbd>
+            <span>Password breaker</span>
+          </li>
+          <li>
+            <kbd>G</kbd>
+            <span>Velocity graph</span>
+          </li>
+          <li>
+            <kbd>P</kbd>
+            <span>Script popup</span>
+          </li>
+          <li>
+            <kbd>L</kbd>
+            <span>Loading popup</span>
+          </li>
+          <li>
+            <kbd>S</kbd>
+            <span>Sound bar</span>
+          </li>
+          <li>
+            <kbd>Space</kbd>
+            <span>Screen lock</span>
+          </li>
+        </ul>
+      </div>
+      <div class='help-section'>
+        <h3>Others</h3>
+        <ul>
+          <li>
+            <kbd>F</kbd>
+            <span>Toggle fullscreen</span>
+          </li>
+          <li>
+            <kbd>?</kbd>
+            <span>Help menu</span>
+          </li>
+        </ul> 
+      </div>
+    </div>
+  </div>
 
   <script src='deps/jquery-1.12.0.min.js'></script>
   <script src='deps/screenfull.js'></script>

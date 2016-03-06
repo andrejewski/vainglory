@@ -590,6 +590,8 @@ var editor = (function() {
   var cursor = '|';
 
   var $editor = $('#editor');
+  $('.frame:first-child', $editor).removeClass('hidden');
+  drawEditor(true);
 
   function drawEditor(untriggered) {
     if(!source.loaded()) return;
@@ -867,8 +869,10 @@ function graphTranslate() {
     : clearInterval(_gt);
 }
 
+var $help = $('#help');
+
 function control(code, shift) {
-  // console.log(code);
+  console.log(code);
   player.record(code, shift);
 
   if(shift) {
@@ -893,6 +897,8 @@ function control(code, shift) {
     if(code === 50) editor.focus(1); // 2
     if(code === 51) editor.focus(2); // 3
     if(code === 52) editor.focus(3); // 4
+
+    if(code === 191) $help.toggleClass('hidden'); // ?
   } else {
     if(code === 8) { // [Backspace]
       editor.erase(1);
